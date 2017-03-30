@@ -89,7 +89,7 @@ def output_movies(movies_info):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('sort')
+    parser.add_argument('sort', choices=['cinemas','rating'])
     args = parser.parse_args()
     afisha = fetch_afisha_page()
     movies_info = collect_movies_info(afisha)
