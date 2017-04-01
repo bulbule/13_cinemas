@@ -43,19 +43,19 @@ def get_movie_rating_and_votes(movie_title):
         movie_request = requests.get(KINOPOISK_URL,
                                      headers=HEADERS,
                                      params=payload,
-                                     timeout=0.0001
+                                     timeout=5
                                      )
     except RequestException:
-        movie_request = None
-    if movie_request is None:
         return 0, 0
-    else:
-        movie_soup = BeautifulSoup(movie_request.content, 'html.parser')
-        rating = movie_soup.find('span', class_='rating_ball')
-        rating = float(rating.get_text()) if rating else 0
-        votes = movie_soup.find('span', class_='ratingCount')
-        votes = int(votes.get_text().replace('\xa0', '')) if votes else 0
-        return rating, votes
+    movie_soup = BeautifulSoup(movie_request.content, 'html.parser')
+    rating = movie_soup.find('span', class_='rating_ball')
+    votes = movie_soup.find('span', class_='ratingCount')
+    rating = float(rating.get_text()) if rating is not None else 0
+    votes = int(
+        votes.get_text().replace(
+            '\xa0',
+            '')) if votes is not None else 0
+    return rating, votes
 
 
 def collect_movies_info(afisha):
@@ -65,7 +65,8 @@ def collect_movies_info(afisha):
         movies_info.append({'movie': movie_title,
                             'cinemas': len(get_cinemas_for_movie(movie_tag)),
                             'rating': get_movie_rating_and_votes(movie_title)[0],
-                            'votes': get_movie_rating_and_votes(movie_title)[1]})
+                            'votes': get_movie_rating_and_votes(movie_title)[1]
+                            })
     return movies_info
 
 
@@ -74,7 +75,10 @@ def sort_movies_by_rating(movies_info):
 
 
 def sort_movies_by_cinemas(movies_info):
-    return sorted(movies_info, key=lambda movie: movie['cinemas'], reverse=True)
+    return sorted(
+        movies_info,
+        key=lambda movie: movie['cinemas'],
+        reverse=True)
 
 
 def output_movies(movies_info):
@@ -89,11 +93,13 @@ def output_movies(movies_info):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('sort', choices=['cinemas','rating'])
+    parser.add_argument('-c', '--cinemas', action='store_true',
+                        help='switch to sorting by cinemas')
     args = parser.parse_args()
     afisha = fetch_afisha_page()
     movies_info = collect_movies_info(afisha)
-    if args.sort=='cinemas':
-        output_movies(sort_movies_by_cinemas(movies_info))
-    elif args.sort=='rating':
-        output_movies(sort_movies_by_rating(movies_info))
+    if args.cinemas:
+        movies_info = sort_movies_by_cinemas(movies_info)
+    else:
+        movies_info = sort_movies_by_rating(movies_info)
+    output_movies(movies_info)
