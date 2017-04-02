@@ -1,7 +1,8 @@
+import argparse
+
 from bs4 import BeautifulSoup
 import requests
 from requests.exceptions import RequestException
-import argparse
 
 
 AFISHA_URL = 'https://www.afisha.ru/msk/schedule_cinema/'
@@ -9,7 +10,8 @@ KINOPOISK_URL = 'https://www.kinopoisk.ru/index.php'
 NUM_MOVIES = 10
 HEADERS = {
     'User-agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12 AppleWebKit/602.4.8'
-    '(KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'}
+    '(KHTML, like Gecko) Version/10.0.3 Safari/602.4.8'
+     }
 
 
 def fetch_afisha_page():
